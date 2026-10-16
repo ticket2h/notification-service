@@ -1,0 +1,16 @@
+ticket2h:
+  core-api:
+    # base-url: FakeCoreApi (IntegrationTest đặt lúc chạy)
+    api-key: test-internal-key-notification-0123456789
+    connect-timeout: PT1S
+    read-timeout: PT2S
+  identity-api:
+    # base-url: FakeIdentityApi (IntegrationTest đặt lúc chạy)
+    api-key: test-internal-key-notification-0123456789
+    connect-timeout: PT1S
+    read-timeout: PT2S
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN

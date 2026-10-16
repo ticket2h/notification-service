@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: notification-service
+  config:
+    # Secret dùng chung cho cả hệ thống nằm ở ../infra/.env (tạo bằng infra/scripts/init-env.sh), không commit.
+    # File .env cạnh pom.xml (nếu có) dùng để ghi đè riêng cho service này.
+    import:
+      - optional:file:../infra/.env[.properties]
+      - optional:file:.env[.properties]
+  datasource:
+    # Database riêng của notification-service (infra/postgres/init tạo user và database "notification")
+    url: jdbc:postgresql://localhost:5432/notification
+    username: notification
+    password: notification
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      properties:
+        # Service bị kill -9 thì consumer cũ còn "sống" trong group đến hết session timeout (mặc định 45s).
+        # 10s để khởi động lại nhanh hơn.
+        session.timeout.ms: 10000
+    producer:
+      # Producer chỉ dùng để đẩy message lỗi sang DLT
+      acks: all
+  mail:
+    host: localhost
+    port: 1025
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+ticket2h:
+  email:
+    from: "Ticket2h <no-reply@ticket2h.local>"
+    public-base-url: http://localhost:8080
+  core-api:
+    # Vé và token QR
+    base-url: http://localhost:8080
+    api-key: ${INTERNAL_API_KEY_NOTIFICATION}
+    connect-timeout: PT2S
+    read-timeout: PT5S
+  identity-api:
+    # Email và tên người nhận. Cùng khoá: khoá là của notification-service, không phải của service được gọi
+    base-url: http://localhost:8082
+    api-key: ${INTERNAL_API_KEY_NOTIFICATION}
+    connect-timeout: PT2S
+    read-timeout: PT5S
